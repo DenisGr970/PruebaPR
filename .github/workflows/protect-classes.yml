@@ -1,0 +1,43 @@
+name: Proteger Clases Críticas
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  verificar-cambios:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Comprobar código fuente
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Verificar si se modificó archivo.java sin autorización
+        run: |
+          echo "Comprobando los archivos modificados en esta Pull Request..."
+          
+          # Obtener la lista de archivos modificados en la PR
+          MODIFIED_FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD)
+          
+          echo "Archivos modificados:"
+          echo "$MODIFIED_FILES"
+          
+          # Comprobar si 'archivo.java' está en la lista de modificados
+          if echo "$MODIFIED_FILES" | grep -q "^archivo.java$"; then
+            echo "¡Alerta! Se ha intentado modificar archivo.java."
+          
+            # Verificar si el autor de la PR es DenisGr970
+            ACTOR="${{ github.actor }}"
+            echo "Autor de la Pull Request: $ACTOR"
+          
+            if [ "$ACTOR" != "DenisGr970" ]; then
+              echo "❌ Error: El usuario $ACTOR no tiene permisos para modificar archivo.java."
+              exit 1
+            else
+              echo "✅ Autor autorizado para modificar archivo.java."
+            fi
+          else
+            echo "No se han detectado modificaciones en las clases protegidas."
+          fi

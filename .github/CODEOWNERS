@@ -1,0 +1,4 @@
+# Proteger archivo principal
+/archivo.java @DenisGr970
+ /.github/CODEOWNERS @DenisGr970
+/.github/workflows/ @DenisGr970
